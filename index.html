@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Branch Off!</title>
+    <style type="text/css">
+
+* {
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+body {
+  background-color: #f0f0f0;
+}
+
+.buttonup {
+  border: 1px solid grey;
+  background-color: #e0e0e0;
+  display: inline-block;
+  padding: 2px 5px;
+}
+
+.buttonup a {
+  color: #000000;
+}
+
+.buttondown {
+  border: 1px solid grey;
+  background-color: #000000;
+  color: #e0e0e0;
+  display: inline-block;
+  padding: 2px 5px;
+}
+
+.buttondown a {
+  color: #e0e0e0;
+}
+
+    </style>
+    <script src="util.js"></script>
+    <script src="branchoff.js"></script>
+    <script src="render.js"></script>
+    <script src="main.js"></script>
+  </head>
+  <body onload="branchoff.start()">
+    <canvas id="view" width="600" height="600" >Sorry, no canvas, no game!</canvas><br>
+    <div class="buttonup" id="grow"><a href="javascript:branchoff.grow();">Grow</a></div>&nbsp;|
+    <div class="buttonup" id="push"><a href="javascript:branchoff.setMode('push');">Push</a></div>
+    <div class="buttonup" id="cut"><a href="javascript:branchoff.setMode('cut');">Cut</a></div>
+    <div class="buttonup" id="branch"><a href="javascript:branchoff.setMode('branch');">Branch</a></div>
+  </body>
+</html>
