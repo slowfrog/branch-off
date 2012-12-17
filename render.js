@@ -3,6 +3,10 @@
 bo.CELLSIZE = 40;
 bo.MAXSIZE = 15;
 
+var crapImg = null;
+var crapX = -400;
+var crapY = 0;
+
 // Tree rendering function
 bo.renderTree = function(ctx, tree) {
   ctx.fillStyle = bo.COLOR_SKY;
@@ -15,7 +19,12 @@ bo.renderTree = function(ctx, tree) {
     }
   }
 
-  bo.renderCloud(ctx);
+  if (crapX > bo.MAXSIZE * bo.CELLSIZE) {
+    crapImg = null;
+    crapX = -500;
+  }
+  crapImg = bo.renderCloud(ctx, crapImg, crapX, crapY);
+  crapX += 0.5;
   
   for (var x = 0; x < bo.MAXSIZE; ++x) {
     for (var y = 0; y < bo.MAXSIZE; ++y) {
@@ -38,12 +47,13 @@ bo.distance = function(dx, dy) {
   return Math.sqrt(dx * dx + dy * dy);
 };
 
-bo.renderCloud = function(ctx) {
-  var cloudImg = bo.generateCloudImage();
+bo.renderCloud = function(ctx, img, x, y) {
+  var cloudImg = img || bo.generateCloudImage();
   ctx.save();
   ctx.globalAlpha = 0.7;
-  ctx.drawImage(cloudImg, 0, 0);
+  ctx.drawImage(cloudImg, x, y);
   ctx.restore();
+  return cloudImg;
 };
 
 bo.generateCloudImage = function() {

@@ -47,6 +47,18 @@ bo.start = function() {
   view.addEventListener("contextmenu", function(event) {
     event.preventDefault();
   }, false);
+  
+  bo.renderLoop();
+};
+
+bo.renderLoop = function() {
+  var stopped = false;
+  if (!stopped) {
+    util.requestAnimationFrame.call(null, bo.renderLoop);
+  }
+
+  bo.renderTree(bo.ctx, bo.game.tree);
+  
 };
 
 bo.setMode = function(mode) {

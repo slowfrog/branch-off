@@ -62,6 +62,22 @@ util.initScroll = function() {
   }
 };
 
+util.requestAnimationFrame =
+  function() {
+    var last = 0;
+    return window.requestAnimationFrame ||
+      window.mozRequestAnimationFrame ||
+      window.msRequestAnimationFrame ||
+      function(f) {
+        window.setTimeout(function() {
+          last = new Date().getTime();
+          f();
+        },
+                          Math.max(0, 16 - (new Date().getTime() - last)));
+      };
+  }();
+
+
 
 // Observable pattern
 var Observable = function() {};
