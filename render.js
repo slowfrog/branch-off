@@ -39,6 +39,15 @@ bo.distance = function(dx, dy) {
 };
 
 bo.renderCloud = function(ctx) {
+  var cloudImg = bo.generateCloudImage();
+  ctx.save();
+  ctx.globalAlpha = 0.7;
+  ctx.drawImage(cloudImg, 0, 0);
+  ctx.restore();
+};
+
+bo.generateCloudImage = function() {
+  // Those vars are constants :)
   var nbCircles = 6;
   var offsetY = 200;
   var r = 400;
@@ -48,6 +57,11 @@ bo.renderCloud = function(ctx) {
   var xRange = 0.2;
   var rRange = 0.2;
   
+  var tmpCanvas = document.createElement("canvas");
+  tmpCanvas.width = 2 * l;
+  tmpCanvas.height = offsetY;
+  var ctx = tmpCanvas.getContext("2d");
+
   var R = Math.sqrt(r * r + l * l);
   var xs = [];
   var ys = [];
@@ -80,27 +94,20 @@ bo.renderCloud = function(ctx) {
   }
 
   ctx.save();
-  var grad = ctx.createLinearGradient(l - 10, 0, l + 10, offsetY);
+  ctx.beginPath();
+  ctx.rect(0, 0, 2 * l, offsetY);
+  ctx.closePath();
+  ctx.clip();
+
+  var grad = ctx.createLinearGradient(l - 10, 0, l , offsetY);
   grad.addColorStop(0, "#ffffff");
   grad.addColorStop(0.7, "#ffffff");
   grad.addColorStop(0.85, "#dddde5");
   grad.addColorStop(1, "#888898");
   ctx.fillStyle = grad;
 
+  // Bottom
   ctx.beginPath();
-  ctx.rect(0, 0, 2 * l, offsetY);
-  ctx.closePath();
-  ctx.clip();
-
-  
-  ctx.beginPath();
-  for (i = 0; i < nbCircles; ++i) {
-    ctx.arc(l + xs[i], offsetY - ys[i], radii[i], Math.PI / 2, -3 * Math.PI / 2, false);
-  }
-  ctx.closePath();
-  ctx.fill();
-  
-  
   ctx.moveTo(l + xs[0], offsetY);
   for (i = 0; i < nbCircles; ++i) {
     ctx.lineTo(l + xs[i], offsetY - ys[i]);
@@ -108,7 +115,17 @@ bo.renderCloud = function(ctx) {
   ctx.lineTo(l + xs[nbCircles - 1], offsetY);
   ctx.closePath();
   ctx.fill();
+
+  // Circles
+  for (i = 0; i < nbCircles; ++i) {
+    ctx.beginPath();
+    ctx.arc(l + xs[i], offsetY - ys[i], radii[i], Math.PI / 2, -3 * Math.PI / 2, false);
+    ctx.closePath();
+    ctx.fill();
+  }
+  
   ctx.restore();
+  return tmpCanvas;
 };
 
 bo.renderSection = function(ctx, section) {
