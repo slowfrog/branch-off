@@ -31,7 +31,7 @@ bo.start = function() {
       push: 5,
       cut: 3,
       branch: 4,
-      grow: 8
+      grow: 12
     }
   };
   var game = new bo.Game(level);

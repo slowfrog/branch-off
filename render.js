@@ -5,6 +5,18 @@ bo.MAXSIZE = 15;
 
 // Tree rendering function
 bo.renderTree = function(ctx, tree) {
+  ctx.fillStyle = bo.COLOR_SKY;
+  ctx.fillRect(0, 0, bo.MAXSIZE * bo.CELLSIZE, bo.MAXSIZE * bo.CELLSIZE);
+
+  ctx.strokeStyle = bo.COLOR_SKY_DARK;
+  for (var x = 0; x < bo.MAXSIZE; ++x) {
+    for (var y = 0; y < bo.MAXSIZE; ++y) {
+      bo.renderBorder(ctx, new bo.Pair(x, y));
+    }
+  }
+
+  bo.renderCloud(ctx);
+  
   for (var x = 0; x < bo.MAXSIZE; ++x) {
     for (var y = 0; y < bo.MAXSIZE; ++y) {
       var pos = new bo.Pair(x, y);
@@ -20,7 +32,6 @@ bo.renderTree = function(ctx, tree) {
     }
   }
 
-  bo.renderCloud(ctx);
 };
 
 bo.distance = function(dx, dy) {
@@ -340,12 +351,13 @@ bo.COLOR_SKY_DARK = "#00c0c0";
 bo.renderBackground = function(ctx, pos, inTree, tree) {
   var xd = pos.x * bo.CELLSIZE;
   var yd = (bo.MAXSIZE - 1 - pos.y) * bo.CELLSIZE;
-  ctx.fillStyle = (inTree ? bo.COLOR_LEAVES : bo.COLOR_SKY);
-  ctx.fillRect(xd, yd, bo.CELLSIZE, bo.CELLSIZE);
-  ctx.strokeStyle = (inTree ? bo.COLOR_LEAVES_DARK : bo.COLOR_SKY_DARK);
-  bo.renderBorder(ctx, pos);
-
-  if (!inTree) {
+  if (inTree) {
+    ctx.fillStyle = (inTree ? bo.COLOR_LEAVES : bo.COLOR_SKY);
+    ctx.fillRect(xd, yd, bo.CELLSIZE, bo.CELLSIZE);
+    ctx.strokeStyle = (inTree ? bo.COLOR_LEAVES_DARK : bo.COLOR_SKY_DARK);
+    bo.renderBorder(ctx, pos);
+    
+  } else {
     bo.renderOutline(ctx, pos, tree);
   }
 };
