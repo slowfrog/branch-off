@@ -18,50 +18,29 @@ bo.EAST  = new bo.Pair( 1,  0);
 bo.SOUTH = new bo.Pair( 0, -1);
 bo.WEST  = new bo.Pair(-1,  0);
 
-bo.oppositeDir = function(dir) {
-  switch (dir) {
-  case bo.NORTH:
-    return bo.SOUTH;
-  case bo.EAST:
-    return bo.WEST;
-  case bo.SOUTH:
-    return bo.NORTH;
-  case bo.WEST:
-    return bo.EAST;
-  default:
-    return bo.NODIR;
-  }
+bo.initDirs = function() {
+  bo.NODIR.opposite = bo.NODIR;
+  bo.NODIR.right = bo.NODIR;
+  bo.NODIR.left = bo.NODIR;
+
+  bo.NORTH.opposite = bo.SOUTH;
+  bo.NORTH.right = bo.EAST;
+  bo.NORTH.left = bo.WEST;
+
+  bo.EAST.opposite = bo.WEST;
+  bo.EAST.right = bo.SOUTH;
+  bo.EAST.left = bo.NORTH;
+
+  bo.SOUTH.opposite = bo.NORTH;
+  bo.SOUTH.right = bo.WEST;
+  bo.SOUTH.left = bo.EAST;
+
+  bo.WEST.opposite = bo.EAST;
+  bo.WEST.right = bo.NORTH;
+  bo.WEST.left = bo.SOUTH;
 };
 
-bo.rotateDirRight = function(dir) {
-  switch (dir) {
-  case bo.NORTH:
-    return bo.EAST;
-  case bo.EAST:
-    return bo.SOUTH;
-  case bo.SOUTH:
-    return bo.WEST;
-  case bo.WEST:
-    return bo.NORTH;
-  default:
-    return bo.NODIR;
-  }
-};
-
-bo.rotateDirLeft = function(dir) {
-  switch (dir) {
-  case bo.NORTH:
-    return bo.WEST;
-  case bo.EAST:
-    return bo.NORTH;
-  case bo.SOUTH:
-    return bo.EAST;
-  case bo.WEST:
-    return bo.SOUTH;
-  default:
-    return bo.NODIR;
-  }
-};
+bo.initDirs();
 
 bo.nextPos = function(pos, dir) {
   return new bo.Pair(pos.x + dir.x, pos.y + dir.y);
@@ -145,24 +124,24 @@ bo.Tree.prototype.growSection = function(section) {
     break;
 
   case bo.SECTION_STRAIGHT:
-    dest = bo.nextPos(section.pos, bo.oppositeDir(section.srcdir));
+    dest = bo.nextPos(section.pos, section.srcdir.opposite);
     this.addSection(new bo.Section(dest, section.srcdir,
-                                          bo.SECTION_STRAIGHT, bo.BUD_ALIVE));
+                                   bo.SECTION_STRAIGHT, bo.BUD_ALIVE));
     break;
 
   case bo.SECTION_CURVE:
     dest = bo.nextPos(section.pos, section.destdir1);
-    this.addSection(new bo.Section(dest, bo.oppositeDir(section.destdir1),
-                                          bo.SECTION_STRAIGHT, bo.BUD_ALIVE));
+    this.addSection(new bo.Section(dest, section.destdir1.opposite,
+                                   bo.SECTION_STRAIGHT, bo.BUD_ALIVE));
     break;
 
   case bo.SECTION_FORK:
     dest = bo.nextPos(section.pos, section.destdir1);
-    this.addSection(new bo.Section(dest, bo.oppositeDir(section.destdir1),
-                                          bo.SECTION_STRAIGHT, bo.BUD_ALIVE));
+    this.addSection(new bo.Section(dest, section.destdir1.opposite,
+                                   bo.SECTION_STRAIGHT, bo.BUD_ALIVE));
     dest = bo.nextPos(section.pos, section.destdir2);
-    this.addSection(new bo.Section(dest, bo.oppositeDir(section.destdir2),
-                                          bo.SECTION_STRAIGHT, bo.BUD_ALIVE));
+    this.addSection(new bo.Section(dest, section.destdir2.opposite,
+                                   bo.SECTION_STRAIGHT, bo.BUD_ALIVE));
     break;
   }
   section.bud = bo.BUD_NO;
@@ -263,12 +242,12 @@ bo.Game.prototype.applyAction = function(action, pos) {
           if (section.type === bo.SECTION_STRAIGHT) {
             if (this.registerIfAllowed(action)) {
               section.type = bo.SECTION_CURVE;
-              section.destdir1 = bo.rotateDirLeft(section.srcdir);
+              section.destdir1 = section.srcdir.left;
             }
             
           } else if (section.type === bo.SECTION_CURVE) {
-            if (section.destdir1 === bo.rotateDirLeft(section.srcdir)) {
-              section.destdir1 = bo.oppositeDir(section.destdir1);
+            if (section.destdir1 === section.srcdir.left) {
+              section.destdir1 = section.destdir1.opposite;
             } else {
               section.type = bo.SECTION_STRAIGHT;
               this.unregisterAction(action);
@@ -285,20 +264,20 @@ bo.Game.prototype.applyAction = function(action, pos) {
                 this.unregisterAction("push");
               }
               section.type = bo.SECTION_FORK;
-              section.destdir1 = bo.rotateDirRight(section.srcdir);
-              section.destdir2 = bo.rotateDirRight(section.destdir1);
+              section.destdir1 = section.srcdir.right;
+              section.destdir2 = section.destdir1.right;
             }
             
           } else if (section.type === bo.SECTION_FORK) {
-            if (section.destdir2 === bo.rotateDirRight(section.destdir1)) {
-              if (section.destdir1 === bo.rotateDirRight(section.srcdir)) {
-                section.destdir2 = bo.rotateDirRight(section.destdir2);
+            if (section.destdir2 === section.destdir1.right) {
+              if (section.destdir1 === section.srcdir.right) {
+                section.destdir2 = section.destdir2.right;
               } else {
                 section.type = bo.SECTION_STRAIGHT;
                 this.unregisterAction(action);
               }
             } else {
-              section.destdir1 = bo.rotateDirRight(section.destdir1);
+              section.destdir1 = section.destdir1.right;
             }
           }
         }

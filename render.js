@@ -93,8 +93,8 @@ bo.renderSectionStraight = function(ctx, section) {
     bo.renderStraight(ctx, section.pos, section.srcdir);
   } else {
     bo.renderEnd(ctx, section.pos, section.srcdir);
-    bo.renderBud(ctx, section.pos, bo.oppositeDir(section.srcdir),
-                        section.bud == bo.BUD_ALIVE);
+    bo.renderBud(ctx, section.pos, section.srcdir.opposite,
+                 section.bud == bo.BUD_ALIVE);
   }
 };
 
@@ -416,11 +416,11 @@ bo.onClick = function(event, view, ctx, tree) {
           if (section.bud === bo.BUD_ALIVE) {
             if (section.type === bo.SECTION_STRAIGHT) {
               section.type = bo.SECTION_CURVE;
-              section.destdir1 = bo.rotateDirLeft(section.srcdir);
+              section.destdir1 = section.srcdir.left;
               
             } else if (section.type === bo.SECTION_CURVE) {
-              if (section.destdir1 === bo.rotateDirLeft(section.srcdir)) {
-                section.destdir1 = bo.oppositeDir(section.destdir1);
+              if (section.destdir1 === section.srcdir.left) {
+                section.destdir1 = section.destdir1.opposite;
               } else {
                 section.type = bo.SECTION_STRAIGHT;
               }
@@ -432,18 +432,18 @@ bo.onClick = function(event, view, ctx, tree) {
             if ((section.type === bo.SECTION_STRAIGHT) ||
                 (section.type === bo.SECTION_CURVE)) {
               section.type = bo.SECTION_FORK;
-              section.destdir1 = bo.rotateDirRight(section.srcdir);
-              section.destdir2 = bo.rotateDirRight(section.destdir1);
+              section.destdir1 = section.srcdir.right;
+              section.destdir2 = section.destdir1.right;
               
             } else if (section.type === bo.SECTION_FORK) {
-              if (section.destdir2 === bo.rotateDirRight(section.destdir1)) {
-                if (section.destdir1 === bo.rotateDirRight(section.srcdir)) {
-                  section.destdir2 = bo.rotateDirRight(section.destdir2);
+              if (section.destdir2 === section.destdir1.right) {
+                if (section.destdir1 === section.srcdir.right) {
+                  section.destdir2 = section.destdir2.right;
                 } else {
                   section.type = bo.SECTION_STRAIGHT;
                 }
               } else {
-                section.destdir1 = bo.rotateDirRight(section.destdir1);
+                section.destdir1 = section.destdir1.right;
               }
             }
           }
