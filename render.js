@@ -19,6 +19,85 @@ bo.renderTree = function(ctx, tree) {
       }
     }
   }
+
+  bo.renderCloud(ctx);
+};
+
+bo.distance = function(dx, dy) {
+  return Math.sqrt(dx * dx + dy * dy);
+};
+
+bo.renderCloud = function(ctx) {
+  var nbCircles = 6;
+  var offsetY = 200;
+  var r = 400;
+  var l = 200;
+  var yVar = 0.2;
+  var lRange = 0.8;
+  var xRange = 0.2;
+  var rRange = 0.2;
+  
+  var R = Math.sqrt(r * r + l * l);
+  var xs = [];
+  var ys = [];
+  var radii = [];
+  var i;
+  var y;
+  var ok;
+  var dist;
+  for (i = 0; i < nbCircles; ++i) {
+    do {
+      var x = Math.max(-l, Math.min(l, (2 * l * lRange * (i + 2 * xRange * Math.random() - xRange) /
+                                        (nbCircles - 1)) - l * lRange));
+      xs[i] = x;
+      var yref = Math.sqrt(R * R - x * x) - r;
+    
+      if ((i === 0) || (i === nbCircles - 1)) {
+        y = yref * (1 + yVar * Math.random());
+      } else {
+        y = yref * (1 - yVar + 2 * yVar * Math.random());
+      }
+      ys[i] = y;
+      var radius = y * 1.2;
+      
+      radii[i] = radius * (1 + 2 * rRange * Math.random() - rRange);
+      ok = ((i === 0) ||
+            ((xs[i] > xs[i - 1]) &&
+             (radii[i] + radii[i - 1] >= bo.distance(xs[i] - xs[i - 1], ys[i] - ys[i - 1]))));
+      
+    } while (!ok);
+  }
+
+  ctx.save();
+  var grad = ctx.createLinearGradient(l - 10, 0, l + 10, offsetY);
+  grad.addColorStop(0, "#ffffff");
+  grad.addColorStop(0.7, "#ffffff");
+  grad.addColorStop(0.85, "#dddde5");
+  grad.addColorStop(1, "#888898");
+  ctx.fillStyle = grad;
+
+  ctx.beginPath();
+  ctx.rect(0, 0, 2 * l, offsetY);
+  ctx.closePath();
+  ctx.clip();
+
+  
+  ctx.beginPath();
+  for (i = 0; i < nbCircles; ++i) {
+    ctx.arc(l + xs[i], offsetY - ys[i], radii[i], Math.PI / 2, -3 * Math.PI / 2, false);
+  }
+  ctx.closePath();
+  ctx.fill();
+  
+  
+  ctx.moveTo(l + xs[0], offsetY);
+  for (i = 0; i < nbCircles; ++i) {
+    ctx.lineTo(l + xs[i], offsetY - ys[i]);
+  }
+  ctx.lineTo(l + xs[nbCircles - 1], offsetY);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
 };
 
 bo.renderSection = function(ctx, section) {
