@@ -3,15 +3,18 @@
 bo.CELLSIZE = 40;
 bo.MAXSIZE = 15;
 
-var crapImg = null;
-var crapX = -400;
-var crapY = 0;
+
+bo.clouds = [
+  { l: 100, r: 200, nbCircles: 5, dx: 0.5, y: 50 },
+  { l: 200, r: 400, nbCircles: 6, dx: 1, y: 0 },
+];
 
 // Tree rendering function
 bo.renderTree = function(ctx, tree) {
   ctx.fillStyle = bo.COLOR_SKY;
   ctx.fillRect(0, 0, bo.MAXSIZE * bo.CELLSIZE, bo.MAXSIZE * bo.CELLSIZE);
 
+  // Background with borders
   ctx.strokeStyle = bo.COLOR_SKY_DARK;
   for (var x = 0; x < bo.MAXSIZE; ++x) {
     for (var y = 0; y < bo.MAXSIZE; ++y) {
@@ -19,13 +22,21 @@ bo.renderTree = function(ctx, tree) {
     }
   }
 
-  if (crapX > bo.MAXSIZE * bo.CELLSIZE) {
-    crapImg = null;
-    crapX = -500;
+  // Clouds
+  for (var c = 0; c < bo.clouds.length; ++c) {
+    var cloud = bo.clouds[c];
+    if (!cloud.img) {
+      cloud.img = bo.generateCloudImage(cloud.l, cloud.r, cloud.nbCircles);
+      cloud.x = -2 * cloud.l;
+    }
+    bo.renderCloud(ctx, cloud.img, cloud.x, cloud.y);
+    cloud.x += cloud.dx;
+    if (cloud.x > bo.MAXSIZE * bo.CELLSIZE) {
+      cloud.img = null;
+    }
   }
-  crapImg = bo.renderCloud(ctx, crapImg, crapX, crapY);
-  crapX += 0.5;
-  
+
+  // Tree
   for (var x = 0; x < bo.MAXSIZE; ++x) {
     for (var y = 0; y < bo.MAXSIZE; ++y) {
       var pos = new bo.Pair(x, y);
@@ -45,97 +56,6 @@ bo.renderTree = function(ctx, tree) {
 
 bo.distance = function(dx, dy) {
   return Math.sqrt(dx * dx + dy * dy);
-};
-
-bo.renderCloud = function(ctx, img, x, y) {
-  var cloudImg = img || bo.generateCloudImage();
-  ctx.save();
-  ctx.globalAlpha = 0.7;
-  ctx.drawImage(cloudImg, x, y);
-  ctx.restore();
-  return cloudImg;
-};
-
-bo.generateCloudImage = function() {
-  // Those vars are constants :)
-  var nbCircles = 6;
-  var offsetY = 200;
-  var r = 400;
-  var l = 200;
-  var yVar = 0.2;
-  var lRange = 0.8;
-  var xRange = 0.2;
-  var rRange = 0.2;
-  
-  var tmpCanvas = document.createElement("canvas");
-  tmpCanvas.width = 2 * l;
-  tmpCanvas.height = offsetY;
-  var ctx = tmpCanvas.getContext("2d");
-
-  var R = Math.sqrt(r * r + l * l);
-  var xs = [];
-  var ys = [];
-  var radii = [];
-  var i;
-  var y;
-  var ok;
-  var dist;
-  for (i = 0; i < nbCircles; ++i) {
-    do {
-      var x = Math.max(-l, Math.min(l, (2 * l * lRange * (i + 2 * xRange * Math.random() - xRange) /
-                                        (nbCircles - 1)) - l * lRange));
-      xs[i] = x;
-      var yref = Math.sqrt(R * R - x * x) - r;
-    
-      if ((i === 0) || (i === nbCircles - 1)) {
-        y = yref * (1 + yVar * Math.random());
-      } else {
-        y = yref * (1 - yVar + 2 * yVar * Math.random());
-      }
-      ys[i] = y;
-      var radius = y * 1.2;
-      
-      radii[i] = radius * (1 + 2 * rRange * Math.random() - rRange);
-      ok = ((i === 0) ||
-            ((xs[i] > xs[i - 1]) &&
-             (radii[i] + radii[i - 1] >= bo.distance(xs[i] - xs[i - 1], ys[i] - ys[i - 1]))));
-      
-    } while (!ok);
-  }
-
-  ctx.save();
-  ctx.beginPath();
-  ctx.rect(0, 0, 2 * l, offsetY);
-  ctx.closePath();
-  ctx.clip();
-
-  var grad = ctx.createLinearGradient(l - 10, 0, l , offsetY);
-  grad.addColorStop(0, "#ffffff");
-  grad.addColorStop(0.7, "#ffffff");
-  grad.addColorStop(0.85, "#dddde5");
-  grad.addColorStop(1, "#888898");
-  ctx.fillStyle = grad;
-
-  // Bottom
-  ctx.beginPath();
-  ctx.moveTo(l + xs[0], offsetY);
-  for (i = 0; i < nbCircles; ++i) {
-    ctx.lineTo(l + xs[i], offsetY - ys[i]);
-  }
-  ctx.lineTo(l + xs[nbCircles - 1], offsetY);
-  ctx.closePath();
-  ctx.fill();
-
-  // Circles
-  for (i = 0; i < nbCircles; ++i) {
-    ctx.beginPath();
-    ctx.arc(l + xs[i], offsetY - ys[i], radii[i], Math.PI / 2, -3 * Math.PI / 2, false);
-    ctx.closePath();
-    ctx.fill();
-  }
-  
-  ctx.restore();
-  return tmpCanvas;
 };
 
 bo.renderSection = function(ctx, section) {
@@ -163,7 +83,6 @@ bo.renderSection = function(ctx, section) {
     ctx.fillStyle = "#ff0000";
     ctx.fillRect(xd, yd, bo.CELLSIZE, bo.CELLSIZE);
   }
-
 };
 
 bo.renderSectionEnd = function(ctx, section) {
