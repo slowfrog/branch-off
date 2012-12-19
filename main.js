@@ -51,8 +51,12 @@ bo.start = function() {
   bo.renderLoop();
 };
 
+bo.stop = function() {
+  bo.stopRequested = true;
+};
+
 bo.renderLoop = function() {
-  var stopped = false;
+  var stopped = !!bo.stopRequested;
   if (!stopped) {
     util.requestAnimationFrame.call(null, bo.renderLoop);
   }
