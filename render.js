@@ -42,6 +42,7 @@ bo.renderTree = function(ctx, tree) {
       var pos = new bo.Pair(x, y);
       var sections = tree.getSectionsAt(pos);
       if (sections != null) {
+        bo.renderBackground(ctx, pos, true);
         for (var s = 0; s < sections.length; ++s) {
           var section = sections[s];
           bo.renderSection(ctx, section);
@@ -95,7 +96,7 @@ bo.renderSectionEnd = function(ctx, section) {
 bo.renderEnd = function(ctx, pos, srcdir) {
   var xd = pos.x * bo.CELLSIZE;
   var yd = (bo.MAXSIZE - 1 - pos.y) * bo.CELLSIZE;
-  bo.renderBackground(ctx, pos, true);
+
   ctx.fillStyle = "#800000";
   switch (srcdir) {
   case bo.SOUTH:
@@ -134,12 +135,10 @@ bo.renderSectionStraight = function(ctx, section) {
   }
 };
 
-bo.renderStraight = function(ctx, pos, srcdir, nobackground) {
+bo.renderStraight = function(ctx, pos, srcdir) {
   var xd = pos.x * bo.CELLSIZE;
   var yd = (bo.MAXSIZE - 1 - pos.y) * bo.CELLSIZE;
-  if (!nobackground) {
-    bo.renderBackground(ctx, pos, true);
-  }
+
   ctx.fillStyle = "#800000";
   switch (srcdir) {
   case bo.SOUTH:
@@ -169,12 +168,10 @@ bo.renderSectionCurve = function(ctx, section) {
   }
 };
 
-bo.renderCurve = function(ctx, pos, srcdir, destdir, nobackground) {
+bo.renderCurve = function(ctx, pos, srcdir, destdir) {
   var xd = pos.x * bo.CELLSIZE;
   var yd = (bo.MAXSIZE - 1 - pos.y) * bo.CELLSIZE;
-  if (!nobackground) {
-    bo.renderBackground(ctx, pos, true);
-  }
+
   ctx.fillStyle = "#800000";
   ctx.beginPath();
   switch (srcdir) {
@@ -226,19 +223,19 @@ bo.renderCurve = function(ctx, pos, srcdir, destdir, nobackground) {
   ctx.fill();
 };
 
-bo.renderStraightOrCurve = function(ctx, pos, srcdir, destdir, nobackground) {
+bo.renderStraightOrCurve = function(ctx, pos, srcdir, destdir) {
   if ((srcdir.x == -destdir.x) && (srcdir.y == -destdir.y)) {
-    bo.renderStraight(ctx, pos, srcdir, nobackground);
+    bo.renderStraight(ctx, pos, srcdir);
     
   } else {
-    bo.renderCurve(ctx, pos, srcdir, destdir, nobackground);
+    bo.renderCurve(ctx, pos, srcdir, destdir);
   }
 };
 
 bo.renderSectionFork = function(ctx, section) {
   if (section.bud == bo.BUD_NO) {
     bo.renderStraightOrCurve(ctx, section.pos, section.srcdir, section.destdir1);
-    bo.renderStraightOrCurve(ctx, section.pos, section.srcdir, section.destdir2, true);
+    bo.renderStraightOrCurve(ctx, section.pos, section.srcdir, section.destdir2);
   } else {
     bo.renderEnd(ctx, section.pos, section.srcdir);
     bo.renderBud(ctx, section.pos, section.destdir1, section.bud == bo.BUD_ALIVE);
