@@ -100,11 +100,11 @@ bo.Tree.prototype.grow = function() {
     var secs = this.sections[k];
     for (var i = 0; i < secs.length; ++i) {
       var section = secs[i];
-      if (section.bud == bo.BUD_DEAD) {
+      if (section.bud === bo.BUD_DEAD) {
         section.bud = bo.BUD_NO;
         section.type = bo.SECTION_END;
         
-      } else if (section.bud == bo.BUD_ALIVE) {
+      } else if (section.bud === bo.BUD_ALIVE) {
         toGrow.push(section);
       }
     }
@@ -124,27 +124,43 @@ bo.Tree.prototype.growSection = function(section) {
     break;
 
   case bo.SECTION_STRAIGHT:
-    dest = bo.nextPos(section.pos, section.srcdir.opposite);
-    this.addSection(new bo.Section(dest, section.srcdir,
-                                   bo.SECTION_STRAIGHT, bo.BUD_ALIVE));
+    this.growOneBud(section.pos, section.srcdir.opposite);
     break;
 
   case bo.SECTION_CURVE:
-    dest = bo.nextPos(section.pos, section.destdir1);
-    this.addSection(new bo.Section(dest, section.destdir1.opposite,
-                                   bo.SECTION_STRAIGHT, bo.BUD_ALIVE));
+    this.growOneBud(section.pos, section.destdir1);
     break;
 
   case bo.SECTION_FORK:
-    dest = bo.nextPos(section.pos, section.destdir1);
-    this.addSection(new bo.Section(dest, section.destdir1.opposite,
-                                   bo.SECTION_STRAIGHT, bo.BUD_ALIVE));
-    dest = bo.nextPos(section.pos, section.destdir2);
-    this.addSection(new bo.Section(dest, section.destdir2.opposite,
-                                   bo.SECTION_STRAIGHT, bo.BUD_ALIVE));
+    this.growOneBud(section.pos, section.destdir1);
+    this.growOneBud(section.pos, section.destdir2);
     break;
   }
   section.bud = bo.BUD_NO;
+};
+
+bo.Tree.prototype.growOneBud = function(pos, dir) {
+  var dest = bo.nextPos(pos, dir);
+  var collision = this.hasSectionAt(dest);
+  if (collision) {
+    this.killSectionsAt(dest);
+  }
+  var type = (collision ? bo.SECTION_END : bo.SECTION_STRAIGHT);
+  var bud = (collision ? bo.BUD_NO : bo.BUD_ALIVE);
+  this.addSection(new bo.Section(dest, dir.opposite, type, bud));
+};
+
+bo.Tree.prototype.killSectionsAt = function(pos) {
+  var sections = this.getSectionsAt(pos);
+  for (var i = 0; i < sections.length; ++i) {
+    var section = sections[i];
+    if (section.bud === bo.BUD_ALIVE) {
+      section.bud = bo.BUD_NO;
+      if (section.type === bo.SECTION_STRAIGHT) {
+        section.type = bo.SECTION_END;
+      }
+    }
+  }
 };
 
 
@@ -176,7 +192,7 @@ bo.Game = function(level) {
   this.tree = new bo.Tree();
   // TODO: initialize with level definition
   this.tree.addSection(new bo.Section(new bo.Pair(7, 0), bo.SOUTH,
-                                             bo.SECTION_STRAIGHT, bo.BUD_ALIVE));
+                                      bo.SECTION_STRAIGHT, bo.BUD_ALIVE));
 
 };
 
