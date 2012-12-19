@@ -9,12 +9,23 @@ bo.clouds = [
   { l: 200, r: 400, nbCircles: 6, dx: 1, y: 0 },
 ];
 
-// Tree rendering function
-bo.renderTree = function(ctx, tree) {
+// Game rendering function
+bo.renderGame = function(ctx, game) {
+  var tree = game.tree;
   ctx.fillStyle = bo.COLOR_SKY;
   ctx.fillRect(0, 0, bo.MAXSIZE * bo.CELLSIZE, bo.MAXSIZE * bo.CELLSIZE);
 
   // Background with borders
+  for (var x = 0; x < bo.MAXSIZE; ++x) {
+    for (var y = 0; y < bo.MAXSIZE; ++y) {
+      if (game.isGoal(x, y)) {
+        var xd = x * bo.CELLSIZE;
+        var yd = (bo.MAXSIZE - 1 - y) * bo.CELLSIZE;
+        ctx.fillStyle = bo.COLOR_GOAL;
+        ctx.fillRect(xd, yd, bo.CELLSIZE, bo.CELLSIZE);
+      }
+    }
+  }
   ctx.strokeStyle = bo.COLOR_SKY_DARK;
   for (var x = 0; x < bo.MAXSIZE; ++x) {
     for (var y = 0; y < bo.MAXSIZE; ++y) {
@@ -290,6 +301,7 @@ bo.COLOR_LEAVES = "#00a000";
 bo.COLOR_LEAVES_DARK = "#009000";
 bo.COLOR_SKY = "#00d0d0";
 bo.COLOR_SKY_DARK = "#00c0c0";
+bo.COLOR_GOAL = "#80C880";
 
 bo.renderBackground = function(ctx, pos, inTree, tree) {
   var xd = pos.x * bo.CELLSIZE;
@@ -353,137 +365,4 @@ bo.renderBorder = function(ctx, pos) {
   ctx.globalAlpha = 0.5;
   ctx.strokeRect(xd + 0.5, yd + 0.5, bo.CELLSIZE - 1, bo.CELLSIZE - 1);
   ctx.globalAlpha = 1;
-};
-
-
-// Start function
-bo.start = function() {
-  util.init();
-  var view = document.getElementById("view");
-  var ctx = view.getContext("2d");
-  bo.ctx = ctx;
-
-  
-  var viewpos = util.getPagePosition(view);
-  view.x0 = viewpos.x;
-  view.y0 = viewpos.y;
-
-  ctx.fillStyle = "#ffffff";
-  ctx.fillRect(0, 0, view.width, view.height);
-
-  var tree = new bo.Tree();
-  bo.tree = tree;
-  /*tree.addSection(new bo.Section(new bo.Pair(7, 0), bo.SOUTH,
-                                        bo.SECTION_STRAIGHT, bo.BUD_NO));
-  tree.addSection(new bo.Section(new bo.Pair(7, 1), bo.SOUTH,
-                                        bo.SECTION_FORK, bo.BUD_NO,
-                                        bo.WEST, bo.NORTH));
-  tree.addSection(new bo.Section(new bo.Pair(6, 1), bo.EAST,
-                                        bo.SECTION_CURVE, bo.BUD_NO, bo.NORTH));
-  tree.addSection(new bo.Section(new bo.Pair(6, 2), bo.SOUTH,
-                                        bo.SECTION_FORK, bo.BUD_NO,
-                                        bo.WEST, bo.NORTH));
-  tree.addSection(new bo.Section(new bo.Pair(5, 2), bo.EAST,
-                                        bo.SECTION_CURVE, bo.BUD_DEAD,
-                                        bo.NORTH));
-  tree.addSection(new bo.Section(new bo.Pair(6, 3), bo.SOUTH,
-                                        bo.SECTION_STRAIGHT, bo.BUD_ALIVE,
-                                        bo.NORTH));
-  tree.addSection(new bo.Section(new bo.Pair(7, 2), bo.SOUTH,
-                                        bo.SECTION_CURVE, bo.BUD_NO, bo.EAST));
-  tree.addSection(new bo.Section(new bo.Pair(8, 2), bo.WEST,
-                                        bo.SECTION_FORK, bo.BUD_ALIVE,
-                                        bo.NORTH, bo.SOUTH));*/
-  tree.addSection(new bo.Section(new bo.Pair(7, 0), bo.SOUTH,
-                                        bo.SECTION_STRAIGHT, bo.BUD_ALIVE));
-  bo.renderTree(ctx, tree);
-
-
-  view.addEventListener("mousedown", function(event) {
-    bo.onClick(event, view, ctx, tree);
-  }, false);
-
-  view.addEventListener("contextmenu", function(event) {
-    event.preventDefault();
-  }, false);
-};
-
-bo.setMode = function(mode) {
-  bo.mode = mode;
-  document.getElementById("push").className = "button" + (mode === "push" ? "down" : "up");
-  document.getElementById("cut").className = "button" + (mode === "cut" ? "down" : "up");
-  document.getElementById("branch").className = "button" + (mode === "branch" ? "down" : "up");
-};
-
-bo.grow = function() {
-  util.log("Growing...");
-  bo.tree.grow();
-  bo.renderTree(bo.ctx, bo.tree);
-  var end = new Date().getTime();
-  util.log("Grown", end - start, "ms");
-};
-
-bo.onClick = function(event, view, ctx, tree) {
-  var start = new Date().getTime();
-
-  var x = event.clientX + util.windowScrollX() - view.x0;
-  var y = event.clientY + util.windowScrollY() - view.y0;
-
-  var cx = Math.floor(x / bo.CELLSIZE);
-  var cy = bo.MAXSIZE - 1 - Math.floor(y / bo.CELLSIZE);
-
-  if (event.button == 0) {
-    var pos = new bo.Pair(cx, cy);
-    var sections = tree.getSectionsAt(pos);
-    if (sections != null) {
-      for (var s = 0; s < sections.length; ++s) {
-        var section = sections[s];
-
-        if (bo.mode === "cut") {
-          if (section.bud === bo.BUD_ALIVE) {
-            section.bud = bo.BUD_DEAD;
-          } else if (section.bud === bo.BUD_DEAD) {
-            section.bud = bo.BUD_ALIVE;
-          }
-          
-        } else if (bo.mode === "push") {
-          if (section.bud === bo.BUD_ALIVE) {
-            if (section.type === bo.SECTION_STRAIGHT) {
-              section.type = bo.SECTION_CURVE;
-              section.destdir1 = section.srcdir.left;
-              
-            } else if (section.type === bo.SECTION_CURVE) {
-              if (section.destdir1 === section.srcdir.left) {
-                section.destdir1 = section.destdir1.opposite;
-              } else {
-                section.type = bo.SECTION_STRAIGHT;
-              }
-            }
-          }
-          
-        } else if (bo.mode === "branch") {
-          if (section.bud === bo.BUD_ALIVE) {
-            if ((section.type === bo.SECTION_STRAIGHT) ||
-                (section.type === bo.SECTION_CURVE)) {
-              section.type = bo.SECTION_FORK;
-              section.destdir1 = section.srcdir.right;
-              section.destdir2 = section.destdir1.right;
-              
-            } else if (section.type === bo.SECTION_FORK) {
-              if (section.destdir2 === section.destdir1.right) {
-                if (section.destdir1 === section.srcdir.right) {
-                  section.destdir2 = section.destdir2.right;
-                } else {
-                  section.type = bo.SECTION_STRAIGHT;
-                }
-              } else {
-                section.destdir1 = section.destdir1.right;
-              }
-            }
-          }
-        }
-      }
-      bo.renderTree(ctx, tree);
-    }
-  }
 };

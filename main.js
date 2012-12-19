@@ -32,12 +32,27 @@ bo.start = function() {
       cut: 3,
       branch: 4,
       grow: 12
-    }
+    },
+    board: ("...............\n" +
+            "...............\n" +
+            "...............\n" +
+            "...............\n" +
+            "...............\n" +
+            "...............\n" +
+            "...............\n" +
+            "...............\n" +
+            ".......*.......\n" +
+            ".......*.......\n" +
+            ".......*.......\n" +
+            "......***......\n" +
+            "......***......\n" +
+            "......***......\n" +
+            "......|........")
   };
   var game = new bo.Game(level);
   game.addObserver(bo.observer);
   bo.game = game;
-  bo.renderTree(ctx, bo.game.tree);
+  bo.renderGame(ctx, bo.game);
 
 
   view.addEventListener("mousedown", function(event) {
@@ -61,7 +76,7 @@ bo.renderLoop = function() {
     util.requestAnimationFrame.call(null, bo.renderLoop);
   }
 
-  bo.renderTree(bo.ctx, bo.game.tree);
+  bo.renderGame(bo.ctx, bo.game);
   
 };
 
@@ -78,7 +93,7 @@ bo.grow = function() {
     util.log("Growing...");
     bo.game.tree.grow();
     bo.game.registerAction("grow");
-    bo.renderTree(bo.ctx, bo.game.tree);
+    bo.renderGame(bo.ctx, bo.game);
     var end = new Date().getTime();
     util.log("Grown", end - start, "ms");
   } else {
@@ -100,6 +115,6 @@ bo.onClick = function(event, view, ctx, game) {
     var pos = new bo.Pair(cx, cy);
     
     game.applyAction(action, pos);
-    bo.renderTree(ctx, game.tree);
+    bo.renderGame(ctx, game);
   }
 };

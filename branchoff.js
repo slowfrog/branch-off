@@ -213,10 +213,44 @@ bo.Game = function(level) {
   }
 
   this.tree = new bo.Tree(this.level.width, this.level.height);
-  // TODO: initialize with level definition
-  this.tree.addSection(new bo.Section(new bo.Pair(7, 0), bo.SOUTH,
-                                      bo.SECTION_STRAIGHT, bo.BUD_ALIVE));
+  this.board = bo.Game.makeBoard(this.level.width, this.level.height, 0);
+  this.parseBoard(this.level.board);
+};
 
+bo.Game.makeBoard = function(width, height, def) {
+  var board = Array(height);
+  for (var y = 0; y < height; ++y) {
+    var row = Array(width);
+    for (var x = 0; x < width; ++x) {
+      row[x] = def;
+    }
+    board[y] = row;
+  }
+  return board;
+};
+
+bo.Game.prototype.parseBoard = function(boardStr) {
+  var rows = boardStr.split("\n");
+  for (var i = 0; i < rows.length; ++i) {
+    var row = rows[i].trim();
+    var y = rows.length - 1 - i;
+    for (var x = 0; x < row.length; ++x) {
+      switch (row.charAt(x)) {
+      case "|": 
+        this.tree.addSection(new bo.Section(new bo.Pair(x, y), bo.SOUTH,
+                                            bo.SECTION_STRAIGHT, bo.BUD_ALIVE));
+        break;
+
+      case "*":
+        this.board[y][x] = 1;
+        break;
+      }
+    }
+  }
+};
+
+bo.Game.prototype.isGoal = function(x, y) {
+  return this.board[y][x] !== 0;
 };
 
 bo.Game.prototype.actionCount = function(action) {
