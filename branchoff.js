@@ -65,12 +65,24 @@ bo.Section = function(pos, srcdir, type, bud, destdir1, destdir2) {
   this.bud = bud;
   this.destdir1 = destdir1;
   this.destdir2 = destdir2;
+  this.parent = null;
+  this.children = [];
+};
+
+bo.Section.prototype.addChild = function(child) {
+  this.children.push(child);
 };
 
 
 // Class representing the whole tree
-bo.Tree = function() {
+bo.Tree = function(width, height) {
+  this.width = width;
+  this.height = height;
   this.sections = {};
+};
+
+bo.Tree.prototype.isInside = function(pos) {
+  return ((pos.x >= 0) && (pos.x < this.width) && (pos.y >= 0) && (pos.y < this.height));
 };
 
 bo.Tree.prototype.addSection = function(section) {
@@ -124,30 +136,41 @@ bo.Tree.prototype.growSection = function(section) {
     break;
 
   case bo.SECTION_STRAIGHT:
-    this.growOneBud(section.pos, section.srcdir.opposite);
+    this.growOneBud(section, section.srcdir.opposite);
     break;
 
   case bo.SECTION_CURVE:
-    this.growOneBud(section.pos, section.destdir1);
+    this.growOneBud(section, section.destdir1);
     break;
 
   case bo.SECTION_FORK:
-    this.growOneBud(section.pos, section.destdir1);
-    this.growOneBud(section.pos, section.destdir2);
+    this.growOneBud(section, section.destdir1);
+    this.growOneBud(section, section.destdir2);
     break;
   }
   section.bud = bo.BUD_NO;
 };
 
-bo.Tree.prototype.growOneBud = function(pos, dir) {
+bo.Tree.prototype.growOneBud = function(section, dir) {
+  var pos = section.pos
   var dest = bo.nextPos(pos, dir);
+  if (!this.isInside(dest)) {
+    // Crash at the bounds of the level
+    section.type = bo.SECTION_END;
+    section.bud = bo.BUD_NO;
+    return;
+  }
+  
   var collision = this.hasSectionAt(dest);
   if (collision) {
     this.killSectionsAt(dest);
   }
   var type = (collision ? bo.SECTION_END : bo.SECTION_STRAIGHT);
   var bud = (collision ? bo.BUD_NO : bo.BUD_ALIVE);
-  this.addSection(new bo.Section(dest, dir.opposite, type, bud));
+  var childSection = new bo.Section(dest, dir.opposite, type, bud);
+  childSection.parent = section;
+  section.addChild(childSection);
+  this.addSection(childSection);
 };
 
 bo.Tree.prototype.killSectionsAt = function(pos) {
@@ -189,7 +212,7 @@ bo.Game = function(level) {
     }
   }
 
-  this.tree = new bo.Tree();
+  this.tree = new bo.Tree(this.level.width, this.level.height);
   // TODO: initialize with level definition
   this.tree.addSection(new bo.Section(new bo.Pair(7, 0), bo.SOUTH,
                                       bo.SECTION_STRAIGHT, bo.BUD_ALIVE));
