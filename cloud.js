@@ -3,7 +3,7 @@
 bo.renderCloud = function(ctx, img, x, y) {
   var cloudImg = img || bo.generateCloudImage();
   ctx.save();
-  ctx.globalAlpha = 0.7;
+  ctx.globalAlpha = 1;
   ctx.drawImage(cloudImg, x, y);
   ctx.restore();
   return cloudImg;
