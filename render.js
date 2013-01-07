@@ -53,7 +53,7 @@ bo.renderGame = function(ctx, game) {
       var pos = new bo.Pair(x, y);
       var sections = tree.getSectionsAt(pos);
       if (sections != null) {
-        bo.renderBackground(ctx, pos, true);
+        bo.renderBackground(ctx, pos, true, tree, game.isGoal(x, y));
         for (var s = 0; s < sections.length; ++s) {
           var section = sections[s];
           bo.renderSection(ctx, section);
@@ -298,16 +298,19 @@ bo.renderBud = function(ctx, pos, dir, alive) {
 };
 
 bo.COLOR_LEAVES = "#00a000";
+bo.COLOR_LEAVES_GOAL = "#40b040";
 bo.COLOR_LEAVES_DARK = "#009000";
 bo.COLOR_SKY = "#00d0d0";
 bo.COLOR_SKY_DARK = "#00c0c0";
 bo.COLOR_GOAL = "#80C880";
 
-bo.renderBackground = function(ctx, pos, inTree, tree) {
+bo.renderBackground = function(ctx, pos, inTree, tree, isGoal) {
   var xd = pos.x * bo.CELLSIZE;
   var yd = (bo.MAXSIZE - 1 - pos.y) * bo.CELLSIZE;
   if (inTree) {
-    ctx.fillStyle = (inTree ? bo.COLOR_LEAVES : bo.COLOR_SKY);
+    ctx.fillStyle = (inTree ?
+                     (isGoal ? bo.COLOR_LEAVES_GOAL : bo.COLOR_LEAVES) :
+                     bo.COLOR_SKY);
     ctx.fillRect(xd, yd, bo.CELLSIZE, bo.CELLSIZE);
     ctx.strokeStyle = (inTree ? bo.COLOR_LEAVES_DARK : bo.COLOR_SKY_DARK);
     bo.renderBorder(ctx, pos);

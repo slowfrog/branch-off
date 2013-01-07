@@ -239,8 +239,7 @@ bo.Game.prototype.parseBoard = function(boardStr) {
       case "|": 
         this.tree.addSection(new bo.Section(new bo.Pair(x, y), bo.SOUTH,
                                             bo.SECTION_STRAIGHT, bo.BUD_ALIVE));
-        break;
-
+        // No break: an existing section is also an implicit goal
       case "*":
         this.board[y][x] = 1;
         break;
