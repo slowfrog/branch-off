@@ -96,8 +96,20 @@ bo.grow = function() {
     bo.renderGame(bo.ctx, bo.game);
     var end = new Date().getTime();
     util.log("Grown", end - start, "ms");
+
+    bo.checkResult();
+
   } else {
     alert("No more 'Grow'");
+  }
+};
+
+bo.checkResult = function() {
+  // Check if the game is won or lost
+  if (bo.game.isLost()) {
+    alert("Game lost");
+  } else if (bo.game.isWon()) {
+    alert("Game won");
   }
 };
 

@@ -110,6 +110,25 @@ bo.Tree.prototype.hasSectionAt = function(pos) {
   return (sections != null) && (sections.length > 0);
 };
 
+bo.Tree.prototype.getSectionsAtXY = function(x, y) {
+  return this.getSectionsAt(new bo.Pair(x, y));
+};
+
+bo.Tree.prototype.hasSectionAtXY = function(x, y) {
+  return this.hasSectionAt(new bo.Pair(x, y));
+};
+
+bo.Tree.prototype.hasLiveBudAtXY = function(x, y) {
+  var sections = this.getSectionsAtXY(x, y);
+  for (var i = 0; i < sections.length; ++i) {
+    var section = sections[i];
+    if (section.bud === bo.BUD_ALIVE) {
+      return true;
+    }
+  }
+  return false;
+};
+
 bo.Tree.prototype.grow = function() {
   // Temporary array to store all sections that need to grow, to avoid modifying this.sections
   // while iterating over its keys
@@ -257,6 +276,39 @@ bo.Game.prototype.parseBoard = function(boardStr) {
 bo.Game.prototype.isGoal = function(x, y) {
   return this.board[y][x] !== 0;
 };
+
+bo.Game.prototype.isWon = function() {
+  var tree = this.tree;
+  var buds = 0;
+  for (var y = 0; y < this.tree.height; ++y) {
+    for (var x = 0; x < this.tree.width; ++x) {
+      if (this.isGoal(x, y) && !tree.hasSectionAtXY(x, y)) {
+        return false;
+      }
+    }
+  }
+  return true;
+};
+
+bo.Game.prototype.isLost = function() {
+  var tree = this.tree;
+  var buds = 0;
+  for (var y = 0; y < this.tree.height; ++y) {
+    for (var x = 0; x < this.tree.width; ++x) {
+      if (tree.hasSectionAtXY(x, y)) {
+        if (!this.isGoal(x, y)) {
+          // As soon as there is a section on a non-goal cell, the game is lost
+          return true;
+        } else if (tree.hasLiveBudAtXY(x, y)) {
+          buds += 1;
+        }
+      }
+    }
+  }
+  // And also if there are no more buds alive
+  return (buds === 0);
+};
+
 
 bo.Game.prototype.actionCount = function(action) {
   return this.actions[action];
