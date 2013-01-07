@@ -57,6 +57,12 @@ bo.SECTION_STRAIGHT = 1;
 bo.SECTION_CURVE    = 2;
 bo.SECTION_FORK     = 3;
 
+// Action types
+bo.ACTION_CUT = "cut";
+bo.ACTION_PUSH = "push";
+bo.ACTION_BRANCH = "branch";
+bo.ACTION_GROW = "grow";
+
 // Class representing a section of the tree
 bo.Section = function(pos, srcdir, type, bud, destdir1, destdir2) {
   this.pos = pos;
@@ -293,69 +299,80 @@ bo.Game.prototype.unregisterAction = function(action) {
   }
 };
 
-bo.Game.prototype.applyAction = function(action, pos) {
+bo.Game.prototype.applyToSectionsAtPos = function(pos, func) {
   var sections = this.tree.getSectionsAt(pos);
   if (sections != null) {
-      
     for (var s = 0; s < sections.length; ++s) {
-      var section = sections[s];
-      if (action === "cut") {
-        if (section.bud === bo.BUD_ALIVE) {
-          if (this.registerIfAllowed(action)) {
-            section.bud = bo.BUD_DEAD;
-          }
-        } else if (section.bud === bo.BUD_DEAD) {
-          section.bud = bo.BUD_ALIVE;
-          this.unregisterAction(action);
-        }
-        
-      } else if (action === "push") {
-        if (section.bud === bo.BUD_ALIVE) {
-          if (section.type === bo.SECTION_STRAIGHT) {
-            if (this.registerIfAllowed(action)) {
-              section.type = bo.SECTION_CURVE;
-              section.destdir1 = section.srcdir.left;
-            }
-            
-          } else if (section.type === bo.SECTION_CURVE) {
-            if (section.destdir1 === section.srcdir.left) {
-              section.destdir1 = section.destdir1.opposite;
-            } else {
-              section.type = bo.SECTION_STRAIGHT;
-              this.unregisterAction(action);
-            }
-          }
-        }
-        
-      } else if (action === "branch") {
-        if (section.bud === bo.BUD_ALIVE) {
-          if ((section.type === bo.SECTION_STRAIGHT) ||
-              (section.type === bo.SECTION_CURVE)) {
-            if (this.registerIfAllowed(action)) {
-              if (section.type === bo.SECTION_CURVE) {
-                this.unregisterAction("push");
-              }
-              section.type = bo.SECTION_FORK;
-              section.destdir1 = section.srcdir.right;
-              section.destdir2 = section.destdir1.right;
-            }
-            
-          } else if (section.type === bo.SECTION_FORK) {
-            if (section.destdir2 === section.destdir1.right) {
-              if (section.destdir1 === section.srcdir.right) {
-                section.destdir2 = section.destdir2.right;
-              } else {
-                section.type = bo.SECTION_STRAIGHT;
-                this.unregisterAction(action);
-              }
-            } else {
-              section.destdir1 = section.destdir1.right;
-            }
-          }
-        }
+      func.call(this, sections[s]);
+    }
+  }
+};
+
+bo.Game.prototype.applyCutToSection = function(section) {
+  if (section.bud === bo.BUD_ALIVE) {
+    if (this.registerIfAllowed(bo.ACTION_CUT)) {
+      section.bud = bo.BUD_DEAD;
+    }
+  } else if (section.bud === bo.BUD_DEAD) {
+    section.bud = bo.BUD_ALIVE;
+    this.unregisterAction(bo.ACTION_CUT);
+  }
+};
+
+bo.Game.prototype.applyPushToSection = function(section) {
+  if (section.bud === bo.BUD_ALIVE) {
+    if (section.type === bo.SECTION_STRAIGHT) {
+      if (this.registerIfAllowed(bo.ACTION_PUSH)) {
+        section.type = bo.SECTION_CURVE;
+        section.destdir1 = section.srcdir.left;
+      }
+      
+    } else if (section.type === bo.SECTION_CURVE) {
+      if (section.destdir1 === section.srcdir.left) {
+        section.destdir1 = section.destdir1.opposite;
+      } else {
+        section.type = bo.SECTION_STRAIGHT;
+        this.unregisterAction(bo.ACTION_PUSH);
       }
     }
   }
+};
+
+bo.Game.prototype.applyBranchToSection = function(section) {
+  if (section.bud === bo.BUD_ALIVE) {
+    if ((section.type === bo.SECTION_STRAIGHT) ||
+        (section.type === bo.SECTION_CURVE)) {
+      if (this.registerIfAllowed(bo.ACTION_BRANCH)) {
+        if (section.type === bo.SECTION_CURVE) {
+          this.unregisterAction(bo.ACTION_PUSH);
+        }
+        section.type = bo.SECTION_FORK;
+        section.destdir1 = section.srcdir.right;
+        section.destdir2 = section.destdir1.right;
+      }
+            
+    } else if (section.type === bo.SECTION_FORK) {
+      if (section.destdir2 === section.destdir1.right) {
+        if (section.destdir1 === section.srcdir.right) {
+          section.destdir2 = section.destdir2.right;
+        } else {
+          section.type = bo.SECTION_STRAIGHT;
+          this.unregisterAction(bo.ACTION_BRANCH);
+        }
+      } else {
+        section.destdir1 = section.destdir1.right;
+      }
+    }
+  }
+};
+
+bo.Game.prototype.actions = {};
+bo.Game.prototype.actions[bo.ACTION_CUT] = bo.Game.prototype.applyCutToSection;
+bo.Game.prototype.actions[bo.ACTION_PUSH] = bo.Game.prototype.applyPushToSection;
+bo.Game.prototype.actions[bo.ACTION_BRANCH] = bo.Game.prototype.applyBranchToSection;
+
+bo.Game.prototype.applyAction = function(action, pos) {
+  this.applyToSectionsAtPos(pos, bo.Game.prototype.actions[action]);
 };
 
 Observable.makeObservable(bo.Game);
