@@ -202,7 +202,7 @@ bo.Tree.prototype.killSectionsAt = function(pos) {
 //   - branch
 //   - grow
 
-bo.ACTIONS = ["push", "cut", "branch", "grow"];
+bo.ACTIONS = [ bo.ACTION_PUSH, bo.ACTION_CUT, bo.ACTION_BRANCH, bo.ACTION_GROW ];
 
 // Class representing one game in progress
 bo.Game = function(level) {
