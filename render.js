@@ -5,8 +5,9 @@ bo.MAXSIZE = 15;
 
 
 bo.clouds = [
-  { l: 100, r: 200, nbCircles: 5, dx: 0.5, y: 50 },
-  { l: 200, r: 400, nbCircles: 6, dx: 1, y: 0 },
+  { l: 100, r: 200, nbCircles: 5, dx: 0.3, y: -30 },
+  { l: 75, r: 100, nbCircles: 6, dx: 0.2, y: -47 },
+  { l: 200, r: 400, nbCircles: 6, dx: 0.8, y: -80 },
 ];
 
 // Game rendering function
@@ -15,17 +16,6 @@ bo.renderGame = function(ctx, game) {
   ctx.fillStyle = bo.COLOR_SKY;
   ctx.fillRect(0, 0, bo.MAXSIZE * bo.CELLSIZE, bo.MAXSIZE * bo.CELLSIZE);
 
-  // Background with borders
-  for (var x = 0; x < bo.MAXSIZE; ++x) {
-    for (var y = 0; y < bo.MAXSIZE; ++y) {
-      if (game.isGoal(x, y)) {
-        var xd = x * bo.CELLSIZE;
-        var yd = (bo.MAXSIZE - 1 - y) * bo.CELLSIZE;
-        ctx.fillStyle = bo.COLOR_GOAL;
-        ctx.fillRect(xd, yd, bo.CELLSIZE, bo.CELLSIZE);
-      }
-    }
-  }
   ctx.strokeStyle = bo.COLOR_SKY_DARK;
   for (var x = 0; x < bo.MAXSIZE; ++x) {
     for (var y = 0; y < bo.MAXSIZE; ++y) {
@@ -47,6 +37,18 @@ bo.renderGame = function(ctx, game) {
     }
   }
 
+  // Background with borders
+  for (var x = 0; x < bo.MAXSIZE; ++x) {
+    for (var y = 0; y < bo.MAXSIZE; ++y) {
+      if (game.isGoal(x, y)) {
+        var xd = x * bo.CELLSIZE;
+        var yd = (bo.MAXSIZE - 1 - y) * bo.CELLSIZE;
+        ctx.fillStyle = bo.COLOR_GOAL;
+        ctx.fillRect(xd, yd, bo.CELLSIZE, bo.CELLSIZE);
+        bo.renderBorder(ctx, new bo.Pair(x, y));
+      }
+    }
+  }
   // Tree
   for (var x = 0; x < bo.MAXSIZE; ++x) {
     for (var y = 0; y < bo.MAXSIZE; ++y) {
