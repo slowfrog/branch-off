@@ -38,6 +38,8 @@ bo.renderGame = function(ctx, game) {
   }
 
   // Background with borders
+  ctx.save();
+  ctx.globalAlpha = 0.6;
   for (var x = 0; x < bo.MAXSIZE; ++x) {
     for (var y = 0; y < bo.MAXSIZE; ++y) {
       if (game.isGoal(x, y)) {
@@ -49,6 +51,8 @@ bo.renderGame = function(ctx, game) {
       }
     }
   }
+  ctx.restore();
+  
   // Tree
   for (var x = 0; x < bo.MAXSIZE; ++x) {
     for (var y = 0; y < bo.MAXSIZE; ++y) {
@@ -302,9 +306,9 @@ bo.renderBud = function(ctx, pos, dir, alive) {
 bo.COLOR_LEAVES = "#00a000";
 bo.COLOR_LEAVES_GOAL = "#40b040";
 bo.COLOR_LEAVES_DARK = "#009000";
-bo.COLOR_SKY = "#00d0d0";
-bo.COLOR_SKY_DARK = "#00c0c0";
-bo.COLOR_GOAL = "#80C880";
+bo.COLOR_SKY = "#00e0e0";
+bo.COLOR_SKY_DARK = "#00d0d0";
+bo.COLOR_GOAL = "#60a060";
 
 bo.renderBackground = function(ctx, pos, inTree, tree, isGoal) {
   var xd = pos.x * bo.CELLSIZE;
@@ -367,7 +371,8 @@ bo.renderOutline = function(ctx, pos, tree) {
 bo.renderBorder = function(ctx, pos) {
   var xd = pos.x * bo.CELLSIZE;
   var yd = (bo.MAXSIZE - 1 - pos.y) * bo.CELLSIZE;
+  ctx.save();
   ctx.globalAlpha = 0.5;
   ctx.strokeRect(xd + 0.5, yd + 0.5, bo.CELLSIZE - 1, bo.CELLSIZE - 1);
-  ctx.globalAlpha = 1;
+  ctx.restore();
 };
