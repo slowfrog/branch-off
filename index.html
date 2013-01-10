@@ -39,6 +39,10 @@ body {
   color: #e0e0e0;
 }
 
+#view {
+  border: 1px solid #c0c0c0;
+}
+
     </style>
     <script src="util.js"></script>
     <script src="branchoff.js"></script>
@@ -47,7 +51,7 @@ body {
     <script src="main.js"></script>
   </head>
   <body onload="bo.start()">
-    <canvas id="view" width="600" height="600" >Sorry, no canvas, no game!</canvas><br>
+    <canvas id="view" width="800" height="600" >Sorry, no canvas, no game!</canvas><br>
     <div class="buttonup" id="grow"><a href="javascript:bo.grow();">Grow</a></div>&nbsp;|
     <div class="buttonup" id="push"><a href="javascript:bo.setMode('push');">Push</a></div>
     <div class="buttonup" id="cut"><a href="javascript:bo.setMode('cut');">Cut</a></div>

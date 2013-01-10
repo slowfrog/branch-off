@@ -113,6 +113,12 @@ bo.checkResult = function() {
   }
 };
 
+bo.getCellPos = function(x, y) {
+  var cx = Math.floor((x - 200) / bo.CELLSIZE);
+  var cy = bo.MAXSIZE - 1 - Math.floor(y / bo.CELLSIZE);
+  return new bo.Pair(cx, cy);
+};
+
 bo.onClick = function(event, view, ctx, game) {
   if (event.button == 0) { // Left-click
     
@@ -121,10 +127,7 @@ bo.onClick = function(event, view, ctx, game) {
     var x = event.clientX + util.windowScrollX() - view.x0;
     var y = event.clientY + util.windowScrollY() - view.y0;
     
-    var cx = Math.floor(x / bo.CELLSIZE);
-    var cy = bo.MAXSIZE - 1 - Math.floor(y / bo.CELLSIZE);
-
-    var pos = new bo.Pair(cx, cy);
+    var pos = bo.getCellPos(x, y);
     
     game.applyAction(action, pos);
     bo.renderGame(ctx, game);

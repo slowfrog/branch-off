@@ -12,6 +12,20 @@ bo.clouds = [
 
 // Game rendering function
 bo.renderGame = function(ctx, game) {
+  ctx.save();
+  ctx.translate(200, 0);
+  bo.renderMain(ctx, game);
+  ctx.restore();
+
+  bo.renderGUI(ctx, game);
+};
+
+bo.renderGUI = function(ctx, game) {
+  ctx.fillStyle = "#c0ffff";
+  ctx.fillRect(0, 0, 200, 600);
+};
+
+bo.renderMain = function(ctx, game) {
   var tree = game.tree;
   ctx.fillStyle = bo.COLOR_SKY;
   ctx.fillRect(0, 0, bo.MAXSIZE * bo.CELLSIZE, bo.MAXSIZE * bo.CELLSIZE);
@@ -263,7 +277,7 @@ bo.renderSectionFork = function(ctx, section) {
 bo.renderBud = function(ctx, pos, dir, alive) {
   var xd = pos.x * bo.CELLSIZE;
   var yd = (bo.MAXSIZE - 1 - pos.y) * bo.CELLSIZE;
-
+  
   ctx.fillStyle = (alive ? "#00ff00" : "#000000");
   ctx.beginPath();
   switch (dir) {
