@@ -5,9 +5,9 @@ bo.MAXSIZE = 15;
 
 
 bo.clouds = [
-  { l: 100, r: 200, nbCircles: 5, dx: 0.3, y: -30 },
-  { l: 75, r: 100, nbCircles: 6, dx: 0.2, y: -47 },
-  { l: 200, r: 400, nbCircles: 6, dx: 0.8, y: -80 },
+  { l: 100, r: 200, nbCircles: 5, dx: 0.3, y: -21 },
+  { l: 75, r: 100, nbCircles: 6, dx: 0.2, y: -38 },
+  { l: 200, r: 400, nbCircles: 6, dx: 0.8, y: -71 },
 ];
 
 // Game rendering function
@@ -26,18 +26,28 @@ bo.renderGUI = function(ctx, game) {
 };
 
 bo.renderMain = function(ctx, game) {
-  var tree = game.tree;
   ctx.fillStyle = bo.COLOR_SKY;
   ctx.fillRect(0, 0, bo.MAXSIZE * bo.CELLSIZE, bo.MAXSIZE * bo.CELLSIZE);
 
+  //bo.renderGrid(ctx);
+  bo.renderClouds(ctx);
+  bo.renderGoal(ctx, game);
+  bo.renderTree(ctx, game);
+
+};
+
+bo.renderGrid = function(ctx) {
+  ctx.save();
   ctx.strokeStyle = bo.COLOR_SKY_DARK;
   for (var x = 0; x < bo.MAXSIZE; ++x) {
     for (var y = 0; y < bo.MAXSIZE; ++y) {
       bo.renderBorder(ctx, new bo.Pair(x, y));
     }
   }
+  ctx.restore();
+};
 
-  // Clouds
+bo.renderClouds = function(ctx) {
   for (var c = 0; c < bo.clouds.length; ++c) {
     var cloud = bo.clouds[c];
     if (!cloud.img) {
@@ -50,9 +60,11 @@ bo.renderMain = function(ctx, game) {
       cloud.img = null;
     }
   }
+};
 
-  // Background with borders
+bo.renderGoal = function(ctx, game) {
   ctx.save();
+  ctx.strokeStyle = bo.COLOR_SKY_DARK;
   ctx.globalAlpha = 0.6;
   for (var x = 0; x < bo.MAXSIZE; ++x) {
     for (var y = 0; y < bo.MAXSIZE; ++y) {
@@ -66,8 +78,11 @@ bo.renderMain = function(ctx, game) {
     }
   }
   ctx.restore();
-  
-  // Tree
+};
+
+bo.renderTree = function(ctx, game) {
+  var tree = game.tree;
+  ctx.save();
   for (var x = 0; x < bo.MAXSIZE; ++x) {
     for (var y = 0; y < bo.MAXSIZE; ++y) {
       var pos = new bo.Pair(x, y);
@@ -83,7 +98,7 @@ bo.renderMain = function(ctx, game) {
       }
     }
   }
-
+  ctx.restore();
 };
 
 bo.distance = function(dx, dy) {
