@@ -9,9 +9,23 @@ bo.observer.update = function(event) {
   }
 };
 
+
+bo.IMAGES = {};
+bo.IMAGE_FILES = [ "bend.png", "branch.png", "bud.png", "cut.png" ];
+
+
 // Start function
 bo.start = function() {
   util.init();
+
+  var loader = new util.Loader(bo.IMAGES, bo.onImagesLoaded);
+  for (var i = 0; i < bo.IMAGE_FILES.length; ++i) {
+    loader.addImage(bo.IMAGE_FILES[i]);
+  }
+  loader.close();
+};
+
+bo.onImagesLoaded = function() {
   var view = document.getElementById("view");
   var ctx = view.getContext("2d");
   bo.ctx = ctx;
@@ -64,6 +78,13 @@ bo.start = function() {
   }, false);
   
   bo.renderLoop();
+};
+
+bo.addImages = function(loader, images) {
+  for (var i = 0; i < images.length; ++i) {
+    loader.addImage(images[i]);
+  }
+  loader.close();
 };
 
 bo.stop = function() {
