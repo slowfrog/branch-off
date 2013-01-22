@@ -53,15 +53,17 @@ bo.BUTTON_COLORS = {
   "down": [ "#ffb0ff", "#f0a0f0", "#dd90e5", "#886098" ]
 };
 
-bo.drawButton = function(ctx, x, y, img, style) {
-  var real_style = style || "normal";
-  var is = 64
+bo.BUTTON_IMAGES = {};
+
+bo.createButtonImage = function(style) {
   var s = 54;
   var r = 10;
-  ctx.save();
-  ctx.translate(x, y);
+  var tmpCanvas = document.createElement("canvas");
+  tmpCanvas.width = r * 2 + s;
+  tmpCanvas.height = r * 2 + s;
+  var ctx = tmpCanvas.getContext("2d");
   var grad = ctx.createLinearGradient(r + s / 2, 0, r + s / 2, r * 2 + s);
-  var colors = bo.BUTTON_COLORS[real_style];
+  var colors = bo.BUTTON_COLORS[style];
   grad.addColorStop(0, colors[0]);
   grad.addColorStop(0.20, colors[1]);
   grad.addColorStop(0.85, colors[2]);
@@ -78,6 +80,22 @@ bo.drawButton = function(ctx, x, y, img, style) {
   ctx.lineTo(0, r);
   ctx.quadraticCurveTo(0, 0, r, 0);
   ctx.fill();
+
+  bo.BUTTON_IMAGES[style] = tmpCanvas;
+};
+
+bo.drawButton = function(ctx, x, y, img, style) {
+  var real_style = style || "normal";
+  var is = 64
+  var s = 54; // Duplicated
+  var r = 10; // Duplicated
+  ctx.save();
+  ctx.translate(x, y);
+  if (!bo.BUTTON_IMAGES[real_style]) {
+    bo.createButtonImage(real_style);
+  }
+   
+  ctx.drawImage(bo.BUTTON_IMAGES[real_style], 0, 0);
   ctx.drawImage(img, r + (s - is) / 2, r + (s - is) / 2);
   ctx.restore();
 };
