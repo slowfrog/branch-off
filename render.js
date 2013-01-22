@@ -25,11 +25,26 @@ bo.renderGUI = function(ctx, game) {
   ctx.fillStyle = "#c0ffff";
   ctx.fillRect(0, 0, 200, 600);
 
-  bo.drawButton(ctx, 10, 175, bo.IMAGES["bud.png"]);
-  bo.drawButton(ctx, 10, 315, bo.IMAGES["bend.png"]);
-  bo.drawButton(ctx, 10, 415, bo.IMAGES["cut.png"], "down");
-  bo.drawButton(ctx, 10, 515, bo.IMAGES["branch.png"], "hover");
+  bo.drawActions(ctx, game);
   ctx.restore();
+};
+
+bo.drawActions = function(ctx, game) {
+  ctx.font = "bold 18px Arial";
+  ctx.fillStyle = "#ff0000";
+  bo.drawButton(ctx, 60, 175, bo.IMAGES["bud.png"]);
+  bo.drawTextRightAligned(ctx, game.actionCount("grow"), 125, 242);
+  bo.drawButton(ctx, 60, 315, bo.IMAGES["bend.png"]);
+  bo.drawTextRightAligned(ctx, game.actionCount("push"), 125, 382);
+  bo.drawButton(ctx, 60, 415, bo.IMAGES["branch.png"], "hover");
+  bo.drawTextRightAligned(ctx, game.actionCount("branch"), 125, 482);
+  bo.drawButton(ctx, 60, 515, bo.IMAGES["cut.png"], "down");
+  bo.drawTextRightAligned(ctx, game.actionCount("cut"), 125, 582);
+};
+
+bo.drawTextRightAligned = function(ctx, text, x, y) {
+  var tm = ctx.measureText(text);
+  ctx.fillText(text, x - tm.width, y);
 };
 
 bo.BUTTON_COLORS = {
