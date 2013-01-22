@@ -21,8 +21,50 @@ bo.renderGame = function(ctx, game) {
 };
 
 bo.renderGUI = function(ctx, game) {
+  ctx.save();
   ctx.fillStyle = "#c0ffff";
   ctx.fillRect(0, 0, 200, 600);
+
+  bo.drawButton(ctx, 10, 175, bo.IMAGES["bud.png"]);
+  bo.drawButton(ctx, 10, 315, bo.IMAGES["bend.png"]);
+  bo.drawButton(ctx, 10, 415, bo.IMAGES["cut.png"], "down");
+  bo.drawButton(ctx, 10, 515, bo.IMAGES["branch.png"], "hover");
+  ctx.restore();
+};
+
+bo.BUTTON_COLORS = {
+  "normal": [ "#ffffff", "#f0f0f0", "#dddde5", "#888898" ],
+  "hover": [ "#888898", "#dddde5", "#f0f0f0", "#ffffff" ],
+  "down": [ "#ffb0ff", "#f0a0f0", "#dd90e5", "#886098" ]
+};
+
+bo.drawButton = function(ctx, x, y, img, style) {
+  var real_style = style || "normal";
+  var is = 64
+  var s = 54;
+  var r = 10;
+  ctx.save();
+  ctx.translate(x, y);
+  var grad = ctx.createLinearGradient(r + s / 2, 0, r + s / 2, r * 2 + s);
+  var colors = bo.BUTTON_COLORS[real_style];
+  grad.addColorStop(0, colors[0]);
+  grad.addColorStop(0.20, colors[1]);
+  grad.addColorStop(0.85, colors[2]);
+  grad.addColorStop(1, colors[3]);
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.moveTo(r, 0);
+  ctx.lineTo(r + s, 0);
+  ctx.quadraticCurveTo(r * 2 + s, 0, r * 2 + s, r);
+  ctx.lineTo(r * 2 + s, r + s);
+  ctx.quadraticCurveTo(r * 2 + s, r * 2 + s, r + s, r * 2 + s);
+  ctx.lineTo(r, r * 2 + s);
+  ctx.quadraticCurveTo(0, r * 2 + s, 0, r + s);
+  ctx.lineTo(0, r);
+  ctx.quadraticCurveTo(0, 0, r, 0);
+  ctx.fill();
+  ctx.drawImage(img, r + (s - is) / 2, r + (s - is) / 2);
+  ctx.restore();
 };
 
 bo.renderMain = function(ctx, game) {
