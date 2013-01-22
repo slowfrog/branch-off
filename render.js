@@ -34,12 +34,32 @@ bo.drawActions = function(ctx, game) {
   ctx.fillStyle = "#ff0000";
   bo.drawButton(ctx, 60, 175, bo.IMAGES["bud.png"]);
   bo.drawTextRightAligned(ctx, game.actionCount("grow"), 125, 242);
-  bo.drawButton(ctx, 60, 315, bo.IMAGES["bend.png"]);
+  bo.drawButton(ctx, 60, 315, bo.IMAGES["bend.png"], bo.mode == "push" ? "down" : "normal");
   bo.drawTextRightAligned(ctx, game.actionCount("push"), 125, 382);
-  bo.drawButton(ctx, 60, 415, bo.IMAGES["branch.png"], "hover");
+  bo.drawButton(ctx, 60, 415, bo.IMAGES["branch.png"], bo.mode == "branch" ? "down" : "normal");
   bo.drawTextRightAligned(ctx, game.actionCount("branch"), 125, 482);
-  bo.drawButton(ctx, 60, 515, bo.IMAGES["cut.png"], "down");
+  bo.drawButton(ctx, 60, 515, bo.IMAGES["cut.png"], bo.mode == "cut" ? "down" : "normal");
   bo.drawTextRightAligned(ctx, game.actionCount("cut"), 125, 582);
+};
+
+bo.BUTTON_HEIGHT = 74;
+
+bo.getButtonAt = function(x, y) {
+  if ((x >= 60) && (x <= 60 + bo.BUTTON_HEIGHT)) {
+    if ((y >= 175) && (y <= 175 + bo.BUTTON_HEIGHT)) {
+      return "grow";
+    }
+    if ((y >= 315) && (y <= 315 + bo.BUTTON_HEIGHT)) {
+      return "push";
+    }
+    if ((y >= 415) && (y <= 415 + bo.BUTTON_HEIGHT)) {
+      return "branch";
+    }
+    if ((y >= 515) && (y <= 515 + bo.BUTTON_HEIGHT)) {
+      return "cut";
+    }
+  }
+  return null;
 };
 
 bo.drawTextRightAligned = function(ctx, text, x, y) {

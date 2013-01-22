@@ -103,9 +103,6 @@ bo.renderLoop = function() {
 
 bo.setMode = function(mode) {
   bo.mode = mode;
-  document.getElementById("push").className = "button" + (mode === "push" ? "down" : "up");
-  document.getElementById("cut").className = "button" + (mode === "cut" ? "down" : "up");
-  document.getElementById("branch").className = "button" + (mode === "branch" ? "down" : "up");
 };
 
 bo.grow = function() {
@@ -149,8 +146,19 @@ bo.onClick = function(event, view, ctx, game) {
     var y = event.clientY + util.windowScrollY() - view.y0;
     
     var pos = bo.getCellPos(x, y);
-    
-    game.applyAction(action, pos);
-    bo.renderGame(ctx, game);
+    if (game.isInside(pos)) {
+      game.applyAction(action, pos);
+      bo.renderGame(ctx, game);
+    } else {
+      var action = bo.getButtonAt(x, y);
+      if (action) {
+        if (action === "grow") {
+          bo.grow();
+        } else {
+          bo.setMode(action);
+        }
+        util.log("Action clicked: " + action);
+      }
+    }
   }
 };

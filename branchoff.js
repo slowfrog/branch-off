@@ -351,6 +351,10 @@ bo.Game.prototype.unregisterAction = function(action) {
   }
 };
 
+bo.Game.prototype.isInside = function(pos) {
+  return this.tree.isInside(pos);
+};
+
 bo.Game.prototype.applyToSectionsAtPos = function(pos, func) {
   var sections = this.tree.getSectionsAt(pos);
   if (sections != null) {
