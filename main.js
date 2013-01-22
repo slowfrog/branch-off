@@ -69,6 +69,10 @@ bo.onImagesLoaded = function() {
   bo.renderGame(ctx, bo.game);
 
 
+  view.addEventListener("mousemove", function(event) {
+    bo.onMove(event, view, game);
+  }, false);
+  
   view.addEventListener("mousedown", function(event) {
     bo.onClick(event, view, ctx, game);
   }, false);
@@ -103,6 +107,10 @@ bo.renderLoop = function() {
 
 bo.setMode = function(mode) {
   bo.mode = mode;
+};
+
+bo.setHover = function(hover) {
+  bo.hover = hover;
 };
 
 bo.grow = function() {
@@ -161,4 +169,12 @@ bo.onClick = function(event, view, ctx, game) {
       }
     }
   }
+};
+
+
+bo.onMove = function(event, view, game) {
+  var x = event.clientX + util.windowScrollX() - view.x0;
+  var y = event.clientY + util.windowScrollY() - view.y0;
+  var action = bo.getButtonAt(x, y);
+  bo.setHover(action);
 };

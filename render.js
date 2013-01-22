@@ -29,16 +29,22 @@ bo.renderGUI = function(ctx, game) {
   ctx.restore();
 };
 
+bo.buttonMode = function(action) {
+  return (bo.mode === action ? "down" :
+          bo.hover === action ? "hover" :
+          "normal");
+};
+
 bo.drawActions = function(ctx, game) {
   ctx.font = "bold 18px Arial";
   ctx.fillStyle = "#ff0000";
-  bo.drawButton(ctx, 60, 175, bo.IMAGES["bud.png"]);
+  bo.drawButton(ctx, 60, 175, bo.IMAGES["bud.png"], bo.buttonMode("grow"));
   bo.drawTextRightAligned(ctx, game.actionCount("grow"), 125, 242);
-  bo.drawButton(ctx, 60, 315, bo.IMAGES["bend.png"], bo.mode == "push" ? "down" : "normal");
+  bo.drawButton(ctx, 60, 315, bo.IMAGES["bend.png"], bo.buttonMode("push"));
   bo.drawTextRightAligned(ctx, game.actionCount("push"), 125, 382);
-  bo.drawButton(ctx, 60, 415, bo.IMAGES["branch.png"], bo.mode == "branch" ? "down" : "normal");
+  bo.drawButton(ctx, 60, 415, bo.IMAGES["branch.png"], bo.buttonMode("branch"));
   bo.drawTextRightAligned(ctx, game.actionCount("branch"), 125, 482);
-  bo.drawButton(ctx, 60, 515, bo.IMAGES["cut.png"], bo.mode == "cut" ? "down" : "normal");
+  bo.drawButton(ctx, 60, 515, bo.IMAGES["cut.png"], bo.buttonMode("cut"));
   bo.drawTextRightAligned(ctx, game.actionCount("cut"), 125, 582);
 };
 
